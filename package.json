@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "rss-parser": "^3.13.0"
   },
   "name": "gamepulse-api",
   "version": "1.0.0",
