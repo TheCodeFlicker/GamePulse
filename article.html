@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GamePulse | Article</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+
+    <div class="navbar">
+
+        <a
+            href="index.html"
+            class="logo"
+        >
+            🎮 GamePulse
+        </a>
+
+        <nav>
+
+            <a href="index.html#trending">
+                Trending
+            </a>
+
+            <a href="index.html#news">
+                Latest News
+            </a>
+
+        </nav>
+
+        <button
+            class="menu-button"
+            id="menuButton"
+        >
+            ☰
+        </button>
+
+    </div>
+
+</header>
+
+
+<main class="article-page">
+
+    <a
+        href="index.html"
+        class="back-button"
+    >
+        ← Back to GamePulse
+    </a>
+
+
+    <div id="articleContainer">
+
+        <div class="loading">
+
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+            <span class="loading-dot"></span>
+
+            Loading Article...
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer>
+
+    <div>
+
+        <h3>
+            🎮 GamePulse
+        </h3>
+
+        <p>
+            Gaming news, without the noise.
+        </p>
+
+    </div>
+
+    <p>
+        © 2026 GamePulse
+    </p>
+
+</footer>
+
+
+<script>
+
+const API_URL =
+    "http://127.0.0.1:3000";
+
+
+async function loadArticle() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const id =
+        params.get("id");
+
+
+    const container =
+        document.getElementById(
+            "articleContainer"
+        );
+
+
+    if (!id) {
+
+        container.innerHTML = `
+            <h1>
+                Article not found
+            </h1>
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}/api/news/${id}`
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!data.success) {
+
+            throw new Error(
+                "Article not found"
+            );
+
+        }
+
+
+        const article =
+            data.article;
+
+
+        container.innerHTML = `
+
+            <article class="article-content">
+
+                <p class="section-label">
+                    ${article.category}
+                </p>
+
+
+                <h1>
+                    ${article.title}
+                </h1>
+
+
+                <p class="article-meta">
+                    ${article.source}
+                    •
+                    ${article.date}
+                </p>
+
+
+                <div class="article-image">
+
+                    ${article.image || "🎮"}
+
+                </div>
+
+
+                <p class="article-description">
+                    ${article.description}
+                </p>
+
+
+                <div class="share-section">
+
+                    <h3>
+                        Share this article
+                    </h3>
+
+
+                    <div class="share-buttons">
+
+                        <button
+                            id="copyLink"
+                        >
+                            🔗 Copy Link
+                        </button>
+
+
+                        <button
+                            id="shareArticle"
+                        >
+                            📤 Share
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    href="${article.link || "index.html"}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hero-button"
+                >
+                    Read Original Story →
+                </a>
+
+            </article>
+
+        `;
+
+
+        document.title =
+            `GamePulse | ${article.title}`;
+
+
+        document
+            .getElementById("copyLink")
+            .addEventListener(
+                "click",
+                async () => {
+
+                    await navigator.clipboard
+                        .writeText(
+                            window.location.href
+                        );
+
+                    document
+                        .getElementById("copyLink")
+                        .textContent =
+                        "✅ Link Copied!";
+
+                }
+            );
+
+
+        document
+            .getElementById("shareArticle")
+            .addEventListener(
+                "click",
+                async () => {
+
+                    if (
+                        navigator.share
+                    ) {
+
+                        await navigator.share({
+
+                            title:
+                                article.title,
+
+                            text:
+                                article.description,
+
+                            url:
+                                window.location.href
+
+                        });
+
+                    } else {
+
+                        await navigator.clipboard
+                            .writeText(
+                                window.location.href
+                            );
+
+                        alert(
+                            "Article link copied!"
+                        );
+
+                    }
+
+                }
+            );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        container.innerHTML = `
+
+            <div class="no-results">
+
+                <h2>
+                    Unable to load article
+                </h2>
+
+                <p>
+                    Please make sure the
+                    GamePulse API is running.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+loadArticle();
+
+</script>
+
+</body>
+
+</html>

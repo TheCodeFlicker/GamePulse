@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GamePulse — Gaming News</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+
+    <div class="navbar">
+
+        <a
+            href="index.html"
+            class="logo"
+        >
+            🎮 GamePulse
+        </a>
+
+        <nav>
+
+            <a href="#trending">
+                Trending
+            </a>
+
+            <a href="#news">
+                Latest News
+            </a>
+
+            <a href="#studios">
+                Studios
+            </a>
+
+        </nav>
+
+        <button
+            class="menu-button"
+            id="menuButton"
+            aria-label="Open menu"
+        >
+            ☰
+        </button>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <p class="section-label">
+            THE GAMING NEWS HUB
+        </p>
+
+        <h1>
+            Gaming news.<br>
+            Without the noise.
+        </h1>
+
+        <p>
+            Discover the latest gaming stories,
+            updates and announcements in one place.
+        </p>
+
+        <a
+            href="#news"
+            class="hero-button"
+        >
+            Explore News →
+        </a>
+
+    </section>
+
+
+    <!-- TRENDING -->
+
+    <section id="trending">
+
+        <div class="section-heading">
+
+            <div>
+
+                <p class="section-label">
+                    🔥 TRENDING NOW
+                </p>
+
+                <h2>
+                    What's Hot
+                </h2>
+
+            </div>
+
+        </div>
+
+        <div
+            class="trending-container"
+            id="trendingContainer"
+        >
+
+            <p>
+                Loading trending news...
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- LATEST NEWS -->
+
+    <section id="news">
+
+        <p class="section-label">
+            LATEST
+        </p>
+
+        <h2>
+            Latest News
+        </h2>
+
+
+        <div class="search-area">
+
+            <input
+                type="text"
+                placeholder="Search gaming news..."
+                id="searchInput"
+            >
+
+            <button
+                id="searchButton"
+            >
+                Search
+            </button>
+
+        </div>
+
+
+        <div
+            class="filters"
+            id="studios"
+        >
+
+            <button class="active">
+                All
+            </button>
+
+            <button>
+                Rockstar
+            </button>
+
+            <button>
+                Garena
+            </button>
+
+            <button>
+                Pocket Pair
+            </button>
+
+            <button>
+                Nintendo
+            </button>
+
+            <button>
+                PlayStation
+            </button>
+
+            <button>
+                Xbox
+            </button>
+
+        </div>
+
+
+        <div class="news-container">
+
+            <p>
+                Loading latest news...
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <div>
+
+        <h3>
+            🎮 GamePulse
+        </h3>
+
+        <p>
+            Gaming news, without the noise.
+        </p>
+
+    </div>
+
+    <p>
+        © 2026 GamePulse
+    </p>
+
+</footer>
+
+
+<script src="app.js"></script>
+
+
+<script>
+
+const menuButton =
+    document.getElementById(
+        "menuButton"
+    );
+
+const nav =
+    document.querySelector(
+        "header nav"
+    );
+
+
+menuButton.addEventListener(
+    "click",
+    () => {
+
+        nav.classList.toggle(
+            "mobile-open"
+        );
+
+    }
+);
+
+
+document.querySelectorAll(
+    "header nav a"
+).forEach(link => {
+
+    link.addEventListener(
+        "click",
+        () => {
+
+            nav.classList.remove(
+                "mobile-open"
+            );
+
+        }
+    );
+
+});
+
+</script>
+
+</body>
+
+</html>
