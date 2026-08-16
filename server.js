@@ -23,108 +23,211 @@ app.use((req, res, next) => {
         "*"
     );
 
+    res.header(
+        "Access-Control-Allow-Methods",
+        "GET,OPTIONS"
+    );
+
     next();
 
 });
 
 
 /* ===============================
-   CATEGORY DETECTION
+   CATEGORY KEYWORDS
 ================================ */
 
-function detectCategory(article) {
+const categories = {
 
-    const text =
-        `${article.title || ""} ${article.contentSnippet || ""}`
-            .toLowerCase();
+    esports: [
+        "esports",
+        "esport",
+        "tournament",
+        "championship",
+        "competitive gaming",
+        "league",
+        "valorant",
+        "counter-strike",
+        "counter strike",
+        "cs2",
+        "overwatch",
+        "dota",
+        "league of legends",
+        "worlds",
+        "major",
+        "pro player"
+    ],
 
 
-    if (
-        text.includes("esports") ||
-        text.includes("esport") ||
-        text.includes("tournament") ||
-        text.includes("championship") ||
-        text.includes("valorant") ||
-        text.includes("league of legends") ||
-        text.includes("counter-strike") ||
-        text.includes("cs2")
-    ) {
+    racing: [
+        "racing",
+        "racer",
+        "motorsport",
+        "formula 1",
+        "formula one",
+        "f1",
+        "gran turismo",
+        "forza",
+        "need for speed",
+        "assetto corsa",
+        "wrc",
+        "nascar",
+        "motogp",
+        "rally"
+    ],
 
-        return "Esports";
+
+    rpg: [
+        "rpg",
+        "role-playing",
+        "role playing",
+        "jrpg",
+        "final fantasy",
+        "dragon quest",
+        "elden ring",
+        "baldur's gate",
+        "baldur gate",
+        "persona",
+        "monster hunter",
+        "dragon age",
+        "the witcher",
+        "diablo",
+        "path of exile",
+        "starfield"
+    ],
+
+
+    sandbox: [
+        "sandbox",
+        "minecraft",
+        "roblox",
+        "terraria",
+        "palworld",
+        "garry's mod",
+        "garrys mod",
+        "lego",
+        "creative mode",
+        "building game",
+        "open world"
+    ],
+
+
+    adventure: [
+        "adventure",
+        "zelda",
+        "legend of zelda",
+        "uncharted",
+        "tomb raider",
+        "indiana jones",
+        "assassin's creed",
+        "assassins creed",
+        "horizon",
+        "death stranding",
+        "journey",
+        "exploration"
+    ],
+
+
+    action: [
+        "action",
+        "grand theft auto",
+        "gta",
+        "call of duty",
+        "battlefield",
+        "doom",
+        "destiny",
+        "fortnite",
+        "apex legends",
+        "resident evil",
+        "devil may cry",
+        "street fighter",
+        "tekken",
+        "mortal kombat",
+        "action game",
+        "shooter",
+        "fps",
+        "third-person shooter"
+    ]
+
+};
+
+
+/* ===============================
+   DETECT CATEGORY
+================================ */
+
+function detectCategory(article, index) {
+
+    const text = (
+
+        `${article.title || ""} ` +
+
+        `${article.contentSnippet || ""} ` +
+
+        `${article.content || ""}`
+
+    ).toLowerCase();
+
+
+    /* Check specific categories first */
+
+    for (const category of [
+        "esports",
+        "racing",
+        "rpg",
+        "sandbox",
+        "adventure",
+        "action"
+    ]) {
+
+        const keywords =
+            categories[category];
+
+
+        for (const keyword of keywords) {
+
+            if (
+                text.includes(
+                    keyword.toLowerCase()
+                )
+            ) {
+
+                return (
+                    category
+                        .charAt(0)
+                        .toUpperCase() +
+                    category.slice(1)
+                );
+
+            }
+
+        }
 
     }
 
 
-    if (
-        text.includes("racing") ||
-        text.includes("formula 1") ||
-        text.includes("f1") ||
-        text.includes("motorsport") ||
-        text.includes("gran turismo") ||
-        text.includes("forza") ||
-        text.includes("need for speed")
-    ) {
+    /*
+       If the article cannot be identified,
+       rotate it through categories instead
+       of putting everything into Action.
+    */
 
-        return "Racing";
+    const fallbackCategories = [
 
-    }
+        "Action",
+        "RPG",
+        "Esports",
+        "Adventure",
+        "Sandbox",
+        "Racing"
 
-
-    if (
-        text.includes("rpg") ||
-        text.includes("role-playing") ||
-        text.includes("pokemon") ||
-        text.includes("final fantasy") ||
-        text.includes("elden ring") ||
-        text.includes("baldur")
-    ) {
-
-        return "RPG";
-
-    }
+    ];
 
 
-    if (
-        text.includes("minecraft") ||
-        text.includes("palworld") ||
-        text.includes("roblox") ||
-        text.includes("terraria") ||
-        text.includes("sandbox")
-    ) {
-
-        return "Sandbox";
-
-    }
-
-
-    if (
-        text.includes("adventure") ||
-        text.includes("zelda") ||
-        text.includes("uncharted") ||
-        text.includes("tomb raider")
-    ) {
-
-        return "Adventure";
-
-    }
-
-
-    if (
-        text.includes("call of duty") ||
-        text.includes("battlefield") ||
-        text.includes("gta") ||
-        text.includes("grand theft auto") ||
-        text.includes("fortnite") ||
-        text.includes("apex legends") ||
-        text.includes("doom")
-    ) {
-
-        return "Action";
-
-    }
-
-
-    return "Action";
+    return fallbackCategories[
+        index %
+        fallbackCategories.length
+    ];
 
 }
 
@@ -137,7 +240,9 @@ async function getLiveNews() {
 
     const feed =
         await parser.parseURL(
+
             "https://news.google.com/rss/search?q=gaming&hl=en-IN&gl=IN&ceid=IN:en"
+
         );
 
 
@@ -147,37 +252,50 @@ async function getLiveNews() {
 
             return {
 
-                id: index + 1,
+                id:
+                    index + 1,
+
 
                 title:
                     item.title ||
                     "Gaming News",
 
+
                 description:
                     item.contentSnippet ||
                     "Latest gaming news.",
+
 
                 link:
                     item.link ||
                     "#",
 
+
                 date:
                     item.pubDate ||
                     "Today",
+
 
                 source:
                     item.creator ||
                     "Gaming News",
 
+
                 category:
-                    detectCategory(item),
+                    detectCategory(
+                        item,
+                        index
+                    ),
+
 
                 image:
                     "🎮",
 
+
                 trendingScore:
                     Math.max(
-                        100 - index * 3,
+                        100 -
+                        index * 3,
                         10
                     )
 
@@ -198,13 +316,14 @@ app.get(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "🎮 GamePulse API is running!",
 
             version:
-                "4.0.0"
+                "5.0.0"
 
         });
 
@@ -228,7 +347,8 @@ app.get(
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 count:
                     news.length,
@@ -238,7 +358,9 @@ app.get(
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
                 "Live news error:",
@@ -248,7 +370,8 @@ app.get(
 
             res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Unable to fetch live news."
@@ -287,7 +410,8 @@ app.get(
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 count:
                     trending.length,
@@ -297,7 +421,9 @@ app.get(
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
                 "Trending error:",
@@ -307,7 +433,8 @@ app.get(
 
             res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
                     "Unable to fetch trending news."
@@ -335,6 +462,7 @@ app.get(
                     req.query.search ||
                     ""
                 )
+                    .trim()
                     .toLowerCase();
 
 
@@ -343,6 +471,7 @@ app.get(
                     req.query.category ||
                     "all"
                 )
+                    .trim()
                     .toLowerCase();
 
 
@@ -356,24 +485,24 @@ app.get(
 
                 news =
                     news.filter(
-                        article =>
+                        article => {
 
-                            article.title
-                                .toLowerCase()
-                                .includes(search)
+                            const text = (
 
-                            ||
+                                `${article.title} ` +
 
-                            article.description
-                                .toLowerCase()
-                                .includes(search)
+                                `${article.description} ` +
 
-                            ||
+                                `${article.source}`
 
-                            article.source
-                                .toLowerCase()
-                                .includes(search)
+                            ).toLowerCase();
 
+
+                            return text.includes(
+                                search
+                            );
+
+                        }
                     );
 
             }
@@ -401,7 +530,8 @@ app.get(
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 count:
                     news.length,
@@ -409,25 +539,31 @@ app.get(
                 category:
                     category,
 
+                search:
+                    search,
+
                 news:
                     news
 
             });
 
-        } catch (error) {
+        }
+
+        catch (error) {
 
             console.error(
-                "Search/category error:",
+                "News API error:",
                 error.message
             );
 
 
             res.status(500).json({
 
-                success: false,
+                success:
+                    false,
 
                 message:
-                    "Unable to search news."
+                    "Unable to fetch news."
 
             });
 
