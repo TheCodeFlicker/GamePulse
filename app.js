@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:3000";
+const API_URL = "https://gamepulse-api-ecat.onrender.com";
 
 let currentCategory = "all";
 
@@ -39,7 +39,6 @@ async function loadLiveNews() {
             error
         );
 
-        // Fall back to local API news
         loadNews();
 
     }
@@ -383,6 +382,12 @@ document.addEventListener(
 
     }
 );
+
+
+// ===============================
+// TRENDING NEWS
+// ===============================
+
 async function loadTrending() {
 
     try {
@@ -462,6 +467,8 @@ async function loadTrending() {
     }
 
 }
+
+
 // =========================================
 // AUTO REFRESH LIVE NEWS
 // =========================================
@@ -469,20 +476,36 @@ async function loadTrending() {
 setInterval(() => {
 
     const container =
-    document.querySelector(".news-container");
+        document.querySelector(
+            ".news-container"
+        );
 
-if (container) {
-    container.innerHTML = `
-        <div class="loading">
-            <span class="loading-dot"></span>
-            <span class="loading-dot"></span>
-            <span class="loading-dot"></span>
-            Loading GamePulse...
-        </div>
-    `;
-}loadLiveNews();
+    if (container) {
+
+        container.innerHTML = `
+
+            <div class="loading">
+
+                <span class="loading-dot"></span>
+
+                <span class="loading-dot"></span>
+
+                <span class="loading-dot"></span>
+
+                Loading GamePulse...
+
+            </div>
+
+        `;
+
+    }
+
+    loadLiveNews();
+
     loadTrending();
 
-    console.log("🔄 GamePulse news refreshed");
+    console.log(
+        "🔄 GamePulse news refreshed"
+    );
 
 }, 5 * 60 * 1000);
