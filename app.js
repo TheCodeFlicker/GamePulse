@@ -1,394 +1,392 @@
-const API_URL = "https://gamepulse-api-ecat.onrender.com";
+const API_URL =
+    "https://gamepulse-api-ecat.onrender.com";
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const newsContainer =
+    document.querySelector(
+        ".news-container"
+    );
+
+const trendingContainer =
+    document.getElementById(
+        "trendingContainer"
+    );
+
+const searchInput =
+    document.getElementById(
+        "searchInput"
+    );
+
+const searchButton =
+    document.getElementById(
+        "searchButton"
+    );
+
+const filterButtons =
+    document.querySelectorAll(
+        ".filters button"
+    );
+
 
 let currentCategory = "all";
+let currentSearch = "";
 
 
-// ===============================
-// LOAD LIVE NEWS
-// ===============================
+/* =========================================
+   IMAGE / LOGO
+========================================= */
 
-async function loadLiveNews() {
+function getLogo(article) {
 
-    try {
+    if (!article.logo) {
 
-        const response =
-            await fetch(`${API_URL}/api/live-news`);
-
-        if (!response.ok) {
-            throw new Error("Live news request failed");
-        }
-
-        const data =
-            await response.json();
-
-        if (!data.success) {
-            throw new Error("Live news unavailable");
-        }
-
-        displayNews(data.news);
-
-        console.log(
-            "🔥 Live GamePulse News:",
-            data.news
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Live News Error:",
-            error
-        );
-
-        loadNews();
-
-    }
-
-}
-
-
-// ===============================
-// LOAD LOCAL / SEARCH NEWS
-// ===============================
-
-async function loadNews(
-    search = "",
-    category = "all"
-) {
-
-    try {
-
-        let url =
-            `${API_URL}/api/news?`;
-
-        if (search) {
-
-            url +=
-                `search=${encodeURIComponent(search)}&`;
-
-        }
-
-        if (
-            category &&
-            category !== "all"
-        ) {
-
-            url +=
-                `category=${encodeURIComponent(category)}`;
-
-        }
-
-        const response =
-            await fetch(url);
-
-        const data =
-            await response.json();
-
-        displayNews(data.news);
-
-    } catch (error) {
-
-        console.error(
-            "GamePulse API Error:",
-            error
-        );
-
-    }
-
-}
-
-
-// ===============================
-// DISPLAY NEWS
-// ===============================
-
-function displayNews(news) {
-
-    const container =
-        document.querySelector(
-            ".news-container"
-        );
-
-    if (!container) return;
-
-    container.innerHTML = "";
-
-
-    if (
-        !news ||
-        news.length === 0
-    ) {
-
-        container.innerHTML = `
-
-            <div class="no-results">
-
-                <h3>
-                    No news found
-                </h3>
-
-                <p>
-                    Try another search.
-                </p>
-
+        return `
+            <div class="company-logo fallback-logo">
+                🎮
             </div>
-
         `;
 
-        return;
-
     }
 
 
-    news.forEach(article => {
+    return `
+        <img
+            class="company-logo"
+            src="${article.logo}"
+            alt="${escapeHTML(
+                article.company || "Gaming company"
+            )} logo"
+            loading="lazy"
+            onerror="this.outerHTML='<div class=&quot;company-logo fallback-logo&quot;>🎮</div>'"
+        >
+    `;
 
-        const card =
-            document.createElement(
-                "article"
-            );
-
-        card.className =
-            "news-card";
-
-
-        card.innerHTML = `
-
-            <div class="image">
-
-                ${
-                    article.image ||
-                    "🎮"
-                }
-
-            </div>
+}
 
 
-            <div class="content">
+/* =========================================
+   ESCAPE HTML
+========================================= */
 
-                <small>
-                    ${
-                        article.category ||
-                        "Gaming"
-                    }
-                </small>
+function escapeHTML(value) {
 
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-                <h3>
-                    ${article.title}
-                </h3>
-
-
-                <p>
-                    ${
-                        article.description ||
-                        "Latest gaming news."
-                    }
-                </p>
+}
 
 
-                <div class="news-bottom">
+/* =========================================
+   NEWS CARD
+========================================= */
+
+function createNewsCard(article) {
+
+    const title =
+        escapeHTML(article.title);
+
+    const description =
+        escapeHTML(
+            article.description
+        );
+
+    const company =
+        escapeHTML(
+            article.company ||
+            "Gaming"
+        );
+
+    const category =
+        escapeHTML(
+            article.category ||
+            "Gaming"
+        );
+
+    const date =
+        escapeHTML(
+            article.date ||
+            "Today"
+        );
+
+
+    return `
+
+        <article class="news-card">
+
+            <div class="news-card-top">
+
+                ${getLogo(article)}
+
+                <div class="company-info">
+
+                    <strong>
+                        ${company}
+                    </strong>
 
                     <span>
-                        ${
-                            article.source ||
-                            article.studio ||
-                            "GamePulse"
-                        }
+                        ${category}
                     </span>
-
-
-                    ${
-                        article.link
-
-                        ?
-
-                        `
-                        <a
-                            href="${article.link}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Original Story →
-                        </a>
-                        `
-
-                        :
-
-                        `
-                        <a
-                            href="article.html?id=${article.id}"
-                        >
-                            Read Story →
-                        </a>
-                        `
-
-                    }
 
                 </div>
 
             </div>
 
-        `;
+
+            <div class="news-card-body">
+
+                <h3>
+                    ${title}
+                </h3>
+
+                <p>
+                    ${description}
+                </p>
+
+            </div>
 
 
-        container.appendChild(card);
+            <div class="news-card-footer">
 
-    });
+                <span>
+                    ${date}
+                </span>
+
+
+                <a
+                    href="article.html?id=${encodeURIComponent(
+                        article.id
+                    )}"
+                >
+                    Read Story →
+                </a>
+
+            </div>
+
+        </article>
+
+    `;
 
 }
 
 
-// ===============================
-// SEARCH
-// ===============================
+/* =========================================
+   TRENDING CARD
+========================================= */
 
-function setupSearch() {
+function createTrendingCard(article) {
 
-    const input =
-        document.querySelector(
-            'input[placeholder*="gaming news"]'
-        );
+    const title =
+        escapeHTML(article.title);
 
-    const button =
-        [
-            ...document.querySelectorAll(
-                "button"
-            )
-        ].find(button =>
-            button.textContent
-                .trim()
-                .toLowerCase() ===
-            "search"
+    const company =
+        escapeHTML(
+            article.company ||
+            "Gaming"
         );
 
 
-    if (!input || !button) return;
+    return `
+
+        <article class="trending-card">
+
+            ${getLogo(article)}
+
+            <div>
+
+                <span>
+                    ${company}
+                </span>
+
+                <h3>
+                    ${title}
+                </h3>
+
+                <a
+                    href="article.html?id=${encodeURIComponent(
+                        article.id
+                    )}"
+                >
+                    Read Story →
+                </a>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
 
 
-    button.addEventListener(
-        "click",
-        () => {
+/* =========================================
+   LOAD NEWS
+========================================= */
 
-            loadNews(
-                input.value.trim(),
+async function loadNews() {
+
+    if (!newsContainer) {
+        return;
+    }
+
+
+    newsContainer.innerHTML = `
+
+        <p>
+            Loading news...
+        </p>
+
+    `;
+
+
+    try {
+
+        const params =
+            new URLSearchParams();
+
+
+        if (currentSearch) {
+
+            params.set(
+                "search",
+                currentSearch
+            );
+
+        }
+
+
+        if (
+            currentCategory &&
+            currentCategory !== "all"
+        ) {
+
+            params.set(
+                "category",
                 currentCategory
             );
 
         }
-    );
 
 
-    input.addEventListener(
-        "keydown",
-        event => {
+        const response =
+            await fetch(
+                `${API_URL}/api/news?${params.toString()}`
+            );
 
-            if (
-                event.key === "Enter"
-            ) {
 
-                loadNews(
-                    input.value.trim(),
-                    currentCategory
-                );
+        if (!response.ok) {
 
-            }
+            throw new Error(
+                `HTTP ${response.status}`
+            );
 
         }
-    );
-
-}
 
 
-// ===============================
-// FILTERS
-// ===============================
+        const data =
+            await response.json();
 
-function setupFilters() {
 
-    const buttons =
-        document.querySelectorAll(
-            ".filters button"
+        if (
+            !data.success ||
+            !data.news
+        ) {
+
+            throw new Error(
+                "Invalid API response"
+            );
+
+        }
+
+
+        if (
+            data.news.length === 0
+        ) {
+
+            newsContainer.innerHTML = `
+
+                <div class="no-results">
+
+                    <h3>
+                        No news found
+                    </h3>
+
+                    <p>
+                        Try another search or category.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        newsContainer.innerHTML =
+            data.news
+                .map(
+                    createNewsCard
+                )
+                .join("");
+
+
+    } catch (error) {
+
+        console.error(
+            "News loading error:",
+            error
         );
 
 
-    buttons.forEach(button => {
+        newsContainer.innerHTML = `
 
-        button.addEventListener(
-            "click",
-            () => {
+            <div class="no-results">
 
-                buttons.forEach(
-                    btn =>
-                        btn.classList
-                            .remove("active")
-                );
+                <h3>
+                    Unable to load news
+                </h3>
 
+                <p>
+                    Please try again.
+                </p>
 
-                button.classList.add(
-                    "active"
-                );
+            </div>
 
-
-                const category =
-                    button.textContent
-                        .trim();
-
-
-                currentCategory =
-                    category
-                        .toLowerCase() ===
-                    "all"
-
-                    ? "all"
-
-                    : category;
-
-
-                const input =
-                    document.querySelector(
-                        'input[placeholder*="gaming news"]'
-                    );
-
-
-                loadNews(
-                    input
-                        ? input.value.trim()
-                        : "",
-                    currentCategory
-                );
-
-            }
-        );
-
-    });
-
-}
-
-
-// ===============================
-// START GAMEPULSE
-// ===============================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        loadLiveNews();
-
-        setupSearch();
-
-        setupFilters();
-
-        loadTrending();
+        `;
 
     }
-);
+
+}
 
 
-// ===============================
-// TRENDING NEWS
-// ===============================
+/* =========================================
+   LOAD TRENDING
+========================================= */
 
 async function loadTrending() {
+
+    if (!trendingContainer) {
+        return;
+    }
+
+
+    trendingContainer.innerHTML = `
+
+        <p>
+            Loading trending news...
+        </p>
+
+    `;
+
 
     try {
 
@@ -397,115 +395,175 @@ async function loadTrending() {
                 `${API_URL}/api/trending`
             );
 
+
+        if (!response.ok) {
+
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+
+        }
+
+
         const data =
             await response.json();
 
-        if (!data.success) return;
 
-        const container =
-            document.getElementById(
-                "trendingContainer"
+        if (
+            !data.success ||
+            !data.news
+        ) {
+
+            throw new Error(
+                "Invalid trending response"
             );
 
-        if (!container) return;
+        }
 
-        container.innerHTML = "";
 
-        data.news.forEach(article => {
+        if (
+            data.news.length === 0
+        ) {
 
-            const card =
-                document.createElement(
-                    "article"
-                );
+            trendingContainer.innerHTML = `
 
-            card.className =
-                "trending-card";
-
-            card.innerHTML = `
-
-                <div class="trending-rank">
-                    #${article.id}
-                </div>
-
-                <div class="trending-info">
-
-                    <small>
-                        🔥 TRENDING
-                    </small>
-
-                    <h3>
-                        ${article.title}
-                    </h3>
-
-                    <p>
-                        ${article.source}
-                    </p>
-
-                    <a
-                        href="${article.link}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Read Story →
-                    </a>
-
-                </div>
+                <p>
+                    No trending news available.
+                </p>
 
             `;
 
-            container.appendChild(card);
+            return;
 
-        });
+        }
+
+
+        trendingContainer.innerHTML =
+            data.news
+                .map(
+                    createTrendingCard
+                )
+                .join("");
+
 
     } catch (error) {
 
         console.error(
-            "Trending error:",
+            "Trending loading error:",
             error
         );
+
+
+        trendingContainer.innerHTML = `
+
+            <p>
+                Unable to load trending news.
+            </p>
+
+        `;
 
     }
 
 }
 
 
-// =========================================
-// AUTO REFRESH LIVE NEWS
-// =========================================
+/* =========================================
+   SEARCH
+========================================= */
 
-setInterval(() => {
+function performSearch() {
 
-    const container =
-        document.querySelector(
-            ".news-container"
-        );
+    currentSearch =
+        searchInput
+            ? searchInput.value.trim()
+            : "";
 
-    if (container) {
 
-        container.innerHTML = `
+    loadNews();
 
-            <div class="loading">
+}
 
-                <span class="loading-dot"></span>
 
-                <span class="loading-dot"></span>
+/* =========================================
+   SEARCH BUTTON
+========================================= */
 
-                <span class="loading-dot"></span>
+if (searchButton) {
 
-                Loading GamePulse...
-
-            </div>
-
-        `;
-
-    }
-
-    loadLiveNews();
-
-    loadTrending();
-
-    console.log(
-        "🔄 GamePulse news refreshed"
+    searchButton.addEventListener(
+        "click",
+        performSearch
     );
 
-}, 5 * 60 * 1000);
+}
+
+
+/* =========================================
+   ENTER KEY SEARCH
+========================================= */
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                performSearch();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   CATEGORY FILTERS
+========================================= */
+
+filterButtons.forEach(button => {
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            filterButtons.forEach(
+                btn =>
+                    btn.classList.remove(
+                        "active"
+                    )
+            );
+
+
+            button.classList.add(
+                "active"
+            );
+
+
+            currentCategory =
+                (
+                    button.dataset.category ||
+                    "all"
+                ).toLowerCase();
+
+
+            loadNews();
+
+        }
+    );
+
+});
+
+
+/* =========================================
+   INITIAL LOAD
+========================================= */
+
+loadNews();
+
+loadTrending();

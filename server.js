@@ -7,184 +7,200 @@ const parser = new Parser();
 const PORT = process.env.PORT || 3000;
 
 
-/* ===============================
+/* =========================================
    CORS
-================================ */
+========================================= */
 
 app.use((req, res, next) => {
-
-    res.header(
-        "Access-Control-Allow-Origin",
-        "*"
-    );
-
-    res.header(
-        "Access-Control-Allow-Headers",
-        "*"
-    );
-
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "*");
     res.header(
         "Access-Control-Allow-Methods",
         "GET,OPTIONS"
     );
 
     next();
-
 });
 
 
-/* ===============================
-   CATEGORY KEYWORDS
-================================ */
+/* =========================================
+   COMPANY DATABASE
+========================================= */
 
-const categories = {
+const companies = [
 
-    esports: [
-        "esports",
-        "esport",
-        "tournament",
-        "championship",
-        "competitive gaming",
-        "league",
-        "valorant",
-        "counter-strike",
-        "counter strike",
-        "cs2",
-        "overwatch",
-        "dota",
-        "league of legends",
-        "worlds",
-        "major",
-        "pro player"
-    ],
+    {
+        name: "Riot Games",
+        slug: "riot",
+        keywords: [
+            "riot games",
+            "valorant",
+            "league of legends",
+            "league of legends esports",
+            "teamfight tactics",
+            "legends of runeterra",
+            "riot forge"
+        ]
+    },
+
+    {
+        name: "Ubisoft",
+        slug: "ubisoft",
+        keywords: [
+            "ubisoft",
+            "assassin's creed",
+            "assassins creed",
+            "far cry",
+            "rainbow six",
+            "rainbow six siege",
+            "watch dogs",
+            "just dance",
+            "prince of persia",
+            "the division"
+        ]
+    },
+
+    {
+        name: "Garena",
+        slug: "garena",
+        keywords: [
+            "garena",
+            "free fire",
+            "free fire max",
+            "free fire esports"
+        ]
+    },
+
+    {
+        name: "Xbox",
+        slug: "xbox",
+        keywords: [
+            "xbox",
+            "xbox game pass",
+            "xbox series",
+            "xbox series x",
+            "xbox series s",
+            "xbox games studios",
+            "microsoft gaming"
+        ]
+    },
+
+    {
+        name: "PlayStation",
+        slug: "playstation",
+        keywords: [
+            "playstation",
+            "playstation 5",
+            "playstation 5 pro",
+            "ps5",
+            "ps plus",
+            "playstation studios",
+            "sony interactive entertainment"
+        ]
+    },
+
+    {
+        name: "Nintendo",
+        slug: "nintendo",
+        keywords: [
+            "nintendo",
+            "nintendo switch",
+            "switch 2",
+            "nintendo switch 2",
+            "mario",
+            "zelda",
+            "pokemon",
+            "pokémon"
+        ]
+    },
+
+    {
+        name: "Rockstar Games",
+        slug: "rockstar",
+        keywords: [
+            "rockstar games",
+            "grand theft auto",
+            "gta",
+            "gta 5",
+            "gta v",
+            "gta 6",
+            "gta vi",
+            "red dead redemption"
+        ]
+    },
+
+    {
+        name: "Electronic Arts",
+        slug: "ea",
+        keywords: [
+            "electronic arts",
+            "ea games",
+            "ea sports",
+            "ea fc",
+            "fc 26",
+            "battlefield",
+            "apex legends",
+            "the sims",
+            "need for speed"
+        ]
+    },
+
+    {
+        name: "Epic Games",
+        slug: "epic-games",
+        keywords: [
+            "epic games",
+            "fortnite",
+            "epic games store",
+            "unreal engine"
+        ]
+    },
+
+    {
+        name: "Valve",
+        slug: "valve",
+        keywords: [
+            "valve",
+            "steam",
+            "steam deck",
+            "counter-strike",
+            "counter strike",
+            "cs2",
+            "half-life",
+            "portal"
+        ]
+    },
+
+    {
+        name: "Pocketpair",
+        slug: "pocketpair",
+        keywords: [
+            "pocketpair",
+            "palworld"
+        ]
+    }
+
+];
 
 
-    racing: [
-        "racing",
-        "racer",
-        "motorsport",
-        "formula 1",
-        "formula one",
-        "f1",
-        "gran turismo",
-        "forza",
-        "need for speed",
-        "assetto corsa",
-        "wrc",
-        "nascar",
-        "motogp",
-        "rally"
-    ],
+/* =========================================
+   DETECT COMPANY
+========================================= */
 
-
-    rpg: [
-        "rpg",
-        "role-playing",
-        "role playing",
-        "jrpg",
-        "final fantasy",
-        "dragon quest",
-        "elden ring",
-        "baldur's gate",
-        "baldur gate",
-        "persona",
-        "monster hunter",
-        "dragon age",
-        "the witcher",
-        "diablo",
-        "path of exile",
-        "starfield"
-    ],
-
-
-    sandbox: [
-        "sandbox",
-        "minecraft",
-        "roblox",
-        "terraria",
-        "palworld",
-        "garry's mod",
-        "garrys mod",
-        "lego",
-        "creative mode",
-        "building game",
-        "open world"
-    ],
-
-
-    adventure: [
-        "adventure",
-        "zelda",
-        "legend of zelda",
-        "uncharted",
-        "tomb raider",
-        "indiana jones",
-        "assassin's creed",
-        "assassins creed",
-        "horizon",
-        "death stranding",
-        "journey",
-        "exploration"
-    ],
-
-
-    action: [
-        "action",
-        "grand theft auto",
-        "gta",
-        "call of duty",
-        "battlefield",
-        "doom",
-        "destiny",
-        "fortnite",
-        "apex legends",
-        "resident evil",
-        "devil may cry",
-        "street fighter",
-        "tekken",
-        "mortal kombat",
-        "action game",
-        "shooter",
-        "fps",
-        "third-person shooter"
-    ]
-
-};
-
-
-/* ===============================
-   DETECT CATEGORY
-================================ */
-
-function detectCategory(article, index) {
+function detectCompany(article) {
 
     const text = (
 
         `${article.title || ""} ` +
-
         `${article.contentSnippet || ""} ` +
-
         `${article.content || ""}`
 
     ).toLowerCase();
 
 
-    /* Check specific categories first */
+    for (const company of companies) {
 
-    for (const category of [
-        "esports",
-        "racing",
-        "rpg",
-        "sandbox",
-        "adventure",
-        "action"
-    ]) {
-
-        const keywords =
-            categories[category];
-
-
-        for (const keyword of keywords) {
+        for (const keyword of company.keywords) {
 
             if (
                 text.includes(
@@ -192,12 +208,11 @@ function detectCategory(article, index) {
                 )
             ) {
 
-                return (
-                    category
-                        .charAt(0)
-                        .toUpperCase() +
-                    category.slice(1)
-                );
+                return {
+                    name: company.name,
+                    slug: company.slug,
+                    logo: `/logos/${company.slug}.png`
+                };
 
             }
 
@@ -206,80 +221,192 @@ function detectCategory(article, index) {
     }
 
 
-    /*
-       If the article cannot be identified,
-       rotate it through categories instead
-       of putting everything into Action.
-    */
+    return {
+        name: "GamePulse",
+        slug: "gamepulse",
+        logo: null
+    };
 
-    const fallbackCategories = [
+}
 
+
+/* =========================================
+   CATEGORY DETECTION
+========================================= */
+
+function detectCategory(article, index) {
+
+    const text = (
+
+        `${article.title || ""} ` +
+        `${article.contentSnippet || ""} ` +
+        `${article.content || ""}`
+
+    ).toLowerCase();
+
+
+    const rules = {
+
+        Esports: [
+            "esports",
+            "esport",
+            "tournament",
+            "championship",
+            "competitive gaming",
+            "pro player",
+            "world championship",
+            "valorant champions",
+            "league of legends worlds"
+        ],
+
+        Racing: [
+            "racing",
+            "motorsport",
+            "formula 1",
+            "formula one",
+            "f1",
+            "forza",
+            "gran turismo",
+            "motogp",
+            "nascar",
+            "rally"
+        ],
+
+        RPG: [
+            "rpg",
+            "role-playing",
+            "role playing",
+            "jrpg",
+            "final fantasy",
+            "dragon quest",
+            "elden ring",
+            "baldur's gate",
+            "persona",
+            "monster hunter",
+            "dragon age",
+            "the witcher",
+            "diablo"
+        ],
+
+        Sandbox: [
+            "sandbox",
+            "minecraft",
+            "roblox",
+            "terraria",
+            "palworld",
+            "garry's mod",
+            "creative mode"
+        ],
+
+        Adventure: [
+            "adventure",
+            "zelda",
+            "uncharted",
+            "tomb raider",
+            "indiana jones",
+            "horizon",
+            "death stranding",
+            "exploration"
+        ],
+
+        Action: [
+            "action",
+            "grand theft auto",
+            "gta",
+            "call of duty",
+            "battlefield",
+            "doom",
+            "fortnite",
+            "apex legends",
+            "resident evil",
+            "devil may cry",
+            "street fighter",
+            "tekken",
+            "mortal kombat",
+            "shooter",
+            "fps"
+        ]
+
+    };
+
+
+    for (const category of Object.keys(rules)) {
+
+        for (const keyword of rules[category]) {
+
+            if (
+                text.includes(
+                    keyword.toLowerCase()
+                )
+            ) {
+
+                return category;
+
+            }
+
+        }
+
+    }
+
+
+    const fallback = [
         "Action",
         "RPG",
         "Esports",
         "Adventure",
         "Sandbox",
         "Racing"
-
     ];
 
-
-    return fallbackCategories[
-        index %
-        fallbackCategories.length
+    return fallback[
+        index % fallback.length
     ];
 
 }
 
 
-/* ===============================
-   GET LIVE GAMING NEWS
-================================ */
+/* =========================================
+   GET LIVE NEWS
+========================================= */
 
 async function getLiveNews() {
 
-    const feed =
-        await parser.parseURL(
-
-            "https://news.google.com/rss/search?q=gaming&hl=en-IN&gl=IN&ceid=IN:en"
-
-        );
+    const feed = await parser.parseURL(
+        "https://news.google.com/rss/search?q=gaming&hl=en-IN&gl=IN&ceid=IN:en"
+    );
 
 
     return feed.items
         .slice(0, 30)
         .map((item, index) => {
 
+            const company =
+                detectCompany(item);
+
+
             return {
 
-                id:
-                    index + 1,
-
+                id: index + 1,
 
                 title:
                     item.title ||
                     "Gaming News",
 
-
                 description:
                     item.contentSnippet ||
                     "Latest gaming news.",
-
 
                 link:
                     item.link ||
                     "#",
 
-
                 date:
                     item.pubDate ||
                     "Today",
 
-
                 source:
                     item.creator ||
                     "Gaming News",
-
 
                 category:
                     detectCategory(
@@ -287,15 +414,21 @@ async function getLiveNews() {
                         index
                     ),
 
+                company:
+                    company.name,
+
+                companySlug:
+                    company.slug,
+
+                logo:
+                    company.logo,
 
                 image:
-                    "🎮",
-
+                    null,
 
                 trendingScore:
                     Math.max(
-                        100 -
-                        index * 3,
+                        100 - index * 3,
                         10
                     )
 
@@ -306,34 +439,30 @@ async function getLiveNews() {
 }
 
 
-/* ===============================
+/* =========================================
    HOME
-================================ */
+========================================= */
 
-app.get(
-    "/",
-    (req, res) => {
+app.get("/", (req, res) => {
 
-        res.json({
+    res.json({
 
-            success:
-                true,
+        success: true,
 
-            message:
-                "🎮 GamePulse API is running!",
+        message:
+            "🎮 GamePulse API is running!",
 
-            version:
-                "5.0.0"
+        version:
+            "6.0.0"
 
-        });
+    });
 
-    }
-);
+});
 
 
-/* ===============================
+/* =========================================
    LIVE NEWS
-================================ */
+========================================= */
 
 app.get(
     "/api/live-news",
@@ -347,8 +476,7 @@ app.get(
 
             res.json({
 
-                success:
-                    true,
+                success: true,
 
                 count:
                     news.length,
@@ -358,9 +486,7 @@ app.get(
 
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Live news error:",
@@ -370,8 +496,7 @@ app.get(
 
             res.status(500).json({
 
-                success:
-                    false,
+                success: false,
 
                 message:
                     "Unable to fetch live news."
@@ -384,9 +509,9 @@ app.get(
 );
 
 
-/* ===============================
+/* =========================================
    TRENDING
-================================ */
+========================================= */
 
 app.get(
     "/api/trending",
@@ -410,8 +535,7 @@ app.get(
 
             res.json({
 
-                success:
-                    true,
+                success: true,
 
                 count:
                     trending.length,
@@ -421,9 +545,7 @@ app.get(
 
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "Trending error:",
@@ -433,8 +555,7 @@ app.get(
 
             res.status(500).json({
 
-                success:
-                    false,
+                success: false,
 
                 message:
                     "Unable to fetch trending news."
@@ -447,9 +568,9 @@ app.get(
 );
 
 
-/* ===============================
+/* =========================================
    SEARCH + CATEGORY
-================================ */
+========================================= */
 
 app.get(
     "/api/news",
@@ -484,26 +605,23 @@ app.get(
             if (search) {
 
                 news =
-                    news.filter(
-                        article => {
+                    news.filter(article => {
 
-                            const text = (
+                        const text = (
 
-                                `${article.title} ` +
+                            `${article.title} ` +
+                            `${article.description} ` +
+                            `${article.source} ` +
+                            `${article.company}`
 
-                                `${article.description} ` +
-
-                                `${article.source}`
-
-                            ).toLowerCase();
+                        ).toLowerCase();
 
 
-                            return text.includes(
-                                search
-                            );
+                        return text.includes(
+                            search
+                        );
 
-                        }
-                    );
+                    });
 
             }
 
@@ -516,12 +634,11 @@ app.get(
             ) {
 
                 news =
-                    news.filter(
-                        article =>
+                    news.filter(article =>
 
-                            article.category
-                                .toLowerCase() ===
-                            category
+                        article.category
+                            .toLowerCase() ===
+                        category
 
                     );
 
@@ -530,26 +647,23 @@ app.get(
 
             res.json({
 
-                success:
-                    true,
+                success: true,
 
                 count:
                     news.length,
 
-                category:
-                    category,
-
                 search:
                     search,
+
+                category:
+                    category,
 
                 news:
                     news
 
             });
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "News API error:",
@@ -559,8 +673,7 @@ app.get(
 
             res.status(500).json({
 
-                success:
-                    false,
+                success: false,
 
                 message:
                     "Unable to fetch news."
@@ -573,9 +686,9 @@ app.get(
 );
 
 
-/* ===============================
+/* =========================================
    START SERVER
-================================ */
+========================================= */
 
 app.listen(
     PORT,
