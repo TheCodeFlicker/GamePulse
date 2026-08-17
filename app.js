@@ -52,11 +52,15 @@ function getLogo(article) {
 
     }
 
+    const logoUrl = new URL(
+        article.logo,
+        window.location.origin
+    ).href;
 
     return `
         <img
             class="company-logo"
-            src="${article.logo}"
+            src="${escapeHTML(logoUrl)}"
             alt="${escapeHTML(
                 article.company || "Gaming company"
             )} logo"
